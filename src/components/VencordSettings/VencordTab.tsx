@@ -21,11 +21,12 @@ import { Settings, useSettings } from "@api/Settings";
 import { classNameFactory } from "@api/Styles";
 import { DonateButton } from "@components/DonateButton";
 import { ErrorCard } from "@components/ErrorCard";
+import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { identity } from "@utils/misc";
 import { relaunch, showItemInFolder } from "@utils/native";
 import { useAwaiter } from "@utils/react";
-import { Button, Card, Forms, React, Select, Slider, Switch } from "@webpack/common";
+import { Button, Card, Forms, React, Select, showToast, Slider, Switch } from "@webpack/common";
 
 import { SettingsTab, wrapTab } from "./shared";
 
@@ -44,19 +45,12 @@ function VencordSettings() {
     });
     const settings = useSettings();
 
-    const donateImage = React.useMemo(() => Math.random() > 0.5 ? DEFAULT_DONATE_IMAGE : SHIGGY_DONATE_IMAGE, []);
+    const discordInvite = "VasF3Ma4Ab";
+    // const donateImage = React.useMemo(() => Math.random() > 0.5 ? DEFAULT_DONATE_IMAGE : SHIGGY_DONATE_IMAGE, []);
 
     const isWindows = navigator.platform.toLowerCase().startsWith("win");
     const isMac = navigator.platform.toLowerCase().startsWith("mac");
     const needsVibrancySettings = IS_DISCORD_DESKTOP && isMac;
-
-    // One-time migration of the old setting to the new one if necessary.
-    React.useEffect(() => {
-        if (settings.macosTranslucency === true && !settings.macosVibrancyStyle) {
-            settings.macosVibrancyStyle = "sidebar";
-            settings.macosTranslucency = undefined;
-        }
-    }, []);
 
     const Switches: Array<false | {
         key: KeysOfType<typeof settings, boolean>;
@@ -102,6 +96,7 @@ function VencordSettings() {
 
     return (
         <SettingsTab title="Suncord Settings">
+            <DiscordInviteCard invite={discordInvite} />
             <Forms.FormSection title="Quick Actions">
                 <Card className={cl("quick-actions-card")}>
                     <React.Fragment>
@@ -163,7 +158,7 @@ function VencordSettings() {
                     options={[
                         // Sorted from most opaque to most transparent
                         {
-                            label: "No vibrancy", default: !settings.macosTranslucency, value: undefined
+                            label: "No vibrancy", value: undefined
                         },
                         {
                             label: "Under Page (window tinting)",
@@ -190,9 +185,8 @@ function VencordSettings() {
                             value: "header"
                         },
                         {
-                            label: "Sidebar (old value for transparent windows)",
-                            value: "sidebar",
-                            default: settings.macosTranslucency
+                            label: "Sidebar",
+                            value: "sidebar"
                         },
                         {
                             label: "Tooltip",
@@ -329,6 +323,39 @@ function DonateCard({ image }: DonateCardProps) {
                     imageRendering: image === SHIGGY_DONATE_IMAGE ? "pixelated" : void 0,
                     marginLeft: "auto",
                     transform: image === DEFAULT_DONATE_IMAGE ? "rotate(10deg)" : void 0
+                }}
+            />
+        </Card>
+    );
+}
+
+interface DiscordInviteProps {
+    invite: string;
+}
+
+function DiscordInviteCard({ invite }: DiscordInviteProps) {
+    return (
+        <Card className={cl("card", "discordinvite")}>
+            <div>
+                <Forms.FormTitle tag="h5">Join the discord!</Forms.FormTitle>
+                <Forms.FormText>Please consider joining the discord for any news on breaking changes, or new bigger updates!</Forms.FormText>
+                <Button
+                    style={{ transform: "translateY(2.3em)" }}
+                    onClick={async e => {
+                        e.preventDefault();
+                        openInviteModal(invite).catch(() => showToast("Invalid or expired invite"));
+                    }}
+                >
+                    Join
+                </Button>
+            </div>
+            <img
+                role="presentation"
+                src={"https://raw.githubusercontent.com/verticalsync/Suncord/main/src/assets/icon.png"}
+                alt=""
+                height={128}
+                style={{
+                    marginLeft: "auto",
                 }}
             />
         </Card>

@@ -16,19 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import gitHash from "~git-hash";
-import gitRemote from "~git-remote";
-
-export {
-    gitHash,
-    gitRemote
-};
-
 export const WEBPACK_CHUNK = "webpackChunkdiscord_app";
 export const REACT_GLOBAL = "Vencord.Webpack.Common.React";
-export const VENCORD_USER_AGENT = `Suncord/${gitHash}${gitRemote ? ` (https://github.com/${gitRemote})` : ""}`;
-export const VENCORD_USER_AGENT_HASHLESS = `Suncord${gitRemote ? ` (https://github.com/${gitRemote})` : ""}`;
-export const SUPPORT_CHANNEL_ID = "1026515880080842772";
+export const SUPPORT_CHANNEL_ID = "1217501200761622641"; // Suncord > #support
 
 export interface Dev {
     name: string;
@@ -67,8 +57,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "botato",
         id: 440990343899643943n,
     },
-    obscurity: {
-        name: "obscurity",
+    fawn: {
+        name: "fawn",
         id: 336678828233588736n,
     },
     rushii: {
@@ -210,6 +200,10 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     zt: {
         name: "zt",
         id: 289556910426816513n,
+    },
+    Trwy: {
+        name: "trey",
+        id: 354427199023218689n
     },
     captain: {
         name: "Captain",
@@ -455,7 +449,35 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     Av32000: {
         name: "Av32000",
         id: 593436735380127770n,
-    }
+    },
+    Hanzy: {
+        name: "hanzydev",
+        id: 1093131781043126322n,
+    },
+    Elvyra: {
+        name: "Elvyra",
+        id: 708275751816003615n,
+    },
+    HAPPY_ENDERMAN: {
+        name: "Happy enderman",
+        id: 1083437693347827764n,
+    },
+    VISHNYA_NET_CHERESHNYA: {
+        name: "Vishnya",
+        id: 282541644484575233n,
+    },
+    Inbestigator: {
+        name: "Inbestigator",
+        id: 761777382041714690n,
+    },
+    newwares: {
+        name: "newwares",
+        id: 421405303951851520n,
+    },
+    Wolfie: {
+        name: "Wolfie",
+        id: 347096063569559553n,
+    },
 } satisfies Record<string, Dev>);
 
 export const SuncordDevs = /* #__PURE__*/ Object.freeze({
@@ -474,6 +496,14 @@ export const SuncordDevs = /* #__PURE__*/ Object.freeze({
     Woosh: {
         name: "w00shh.",
         id: 689165844835860522n,
+    },
+    Cortex: {
+        name: "Cortex",
+        id: 825069530376044594n,
+    },
+    Discord: {
+        name: "discord",
+        id: 643945264868098049n,
     },
 } satisfies Record<string, Dev>);
 

@@ -75,6 +75,12 @@
             "badge": "https://cdn.nest.rip/uploads/e3650f2b-c9e8-444a-87ed-b5741e6e57a0.jpg"
         }
     ],
+    "825069530376044594": [
+        {
+            "tooltip": "blehhh",
+            "badge": "https://cdn.nest.rip/uploads/6a72609d-edd0-4ed4-acd2-9cba46f5bbe8.png"
+        }
+    ],
     "1208898082935148544": [
         {
             "tooltip": "*",
@@ -89,10 +95,26 @@
             "badge": "https://cdn.nest.rip/uploads/5f619d7f-81fd-4d2b-9696-e4c2ad4a0acc.gif"
         }
     ],
-    "1194684303200768052": [
+    "1214648609224527963": [
         {
             "tooltip": "king frenchie",
             "badge": "https://cdn.nest.rip/uploads/a69619ce-666d-43a3-a7dc-5db1fc4783ec.gif"
+        }
+    ],
+    "643945264868098049": [
+        {
+            "tooltip": "jew",
+            "badge": "https://cdn.nest.rip/uploads/33688498-d3d2-44d1-b37e-b2cd84168e93.png"
+        }
+    ],
+    "1181174180578857036": [
+        {
+            "tooltip": "xi",
+            "badge": "https://cdn.nest.rip/uploads/fe6505a3-f3cb-4fa5-9b68-eeca89a589f3.png"
+        },
+        {
+            "tooltip": "xi jinping",
+            "badge": "https://cdn.nest.rip/uploads/55b87b5f-39b9-4867-b7fa-3f0226f31047.png"
         }
     ]
 }

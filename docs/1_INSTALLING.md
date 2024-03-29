@@ -40,7 +40,7 @@ npm i -g pnpm
 Clone Suncord:
 
 ```shell
-git clone https://github.com/verticalsync/Suncord
+git clone https://github.com/fs5hb/Suncord
 cd Suncord
 ```
 

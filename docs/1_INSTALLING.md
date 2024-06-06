@@ -1,5 +1,5 @@
 > [!WARNING]
-> These instructions are only for advanced users. If you're not a Developer, you should use our [graphical installer](https://github.com/verticalsync/SuncordInstaller#usage) instead.
+> These instructions are only for advanced users. If you're not a Developer, you should use our [graphical installer](https://github.com/verticalsync/SuncordInstaller/releases) instead.
 > No support will be provided for installing in this fashion. If you cannot figure it out, you should just stick to a regular install.
 
 # Installation Guide
@@ -96,4 +96,4 @@ Simply run:
 pnpm uninject
 ```
 
-If you need more help, ask in the support channel in our [Discord Server](https://discord.gg/D9uwnFnqmd).
+If you need more help, ask in the support channel in our [Discord Server](https://discord.gg/VasF3Ma4Ab).

@@ -21,25 +21,6 @@ import { Clipboard, Toasts } from "@webpack/common";
 import { DevsById, SuncordDevsById } from "./constants";
 
 /**
- * Recursively merges defaults into an object and returns the same object
- * @param obj Object
- * @param defaults Defaults
- * @returns obj
- */
-export function mergeDefaults<T>(obj: T, defaults: T): T {
-    for (const key in defaults) {
-        const v = defaults[key];
-        if (typeof v === "object" && !Array.isArray(v)) {
-            obj[key] ??= {} as any;
-            mergeDefaults(obj[key], v);
-        } else {
-            obj[key] ??= v;
-        }
-    }
-    return obj;
-}
-
-/**
  * Calls .join(" ") on the arguments
  * classes("one", "two") => "one two"
  */
@@ -115,3 +96,7 @@ export const isMobile = navigator.userAgent.includes("Mobi");
 
 export const isPluginDev = (id: string) => Object.hasOwn(DevsById, id);
 export const isSuncordPluginDev = (id: string) => Object.hasOwn(SuncordDevsById, id);
+
+export function pluralise(amount: number, singular: string, plural = singular + "s") {
+    return amount === 1 ? `${amount} ${singular}` : `${amount} ${plural}`;
+}

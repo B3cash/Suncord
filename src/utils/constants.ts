@@ -16,19 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import gitHash from "~git-hash";
-import gitRemote from "~git-remote";
-
-export {
-    gitHash,
-    gitRemote
-};
-
 export const WEBPACK_CHUNK = "webpackChunkdiscord_app";
 export const REACT_GLOBAL = "Vencord.Webpack.Common.React";
-export const VENCORD_USER_AGENT = `Suncord/${gitHash}${gitRemote ? ` (https://github.com/${gitRemote})` : ""}`;
-export const VENCORD_USER_AGENT_HASHLESS = `Suncord${gitRemote ? ` (https://github.com/${gitRemote})` : ""}`;
-export const SUPPORT_CHANNEL_ID = "1026515880080842772";
+export const SUPPORT_CHANNEL_ID = "1217501200761622641"; // Suncord > #support
 
 export interface Dev {
     name: string;
@@ -67,8 +57,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "botato",
         id: 440990343899643943n,
     },
-    obscurity: {
-        name: "obscurity",
+    fawn: {
+        name: "fawn",
         id: 336678828233588736n,
     },
     rushii: {
@@ -161,7 +151,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     kemo: {
         name: "kemo",
-        id: 299693897859465228n,
+        id: 715746190813298788n,
     },
     dzshn: {
         name: "dzshn",
@@ -210,6 +200,10 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     zt: {
         name: "zt",
         id: 289556910426816513n,
+    },
+    Trwy: {
+        name: "trey",
+        id: 354427199023218689n
     },
     captain: {
         name: "Captain",
@@ -444,10 +438,6 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "Fres",
         id: 843448897737064448n,
     },
-    happy_enderman: {
-        name: "Happy enderman",
-        id: 1083437693347827764n
-    },
     Mopi: {
         name: "Mopi",
         id: 1022189106614243350n
@@ -455,16 +445,152 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     Av32000: {
         name: "Av32000",
         id: 593436735380127770n,
-    }
+    },
+    Hanzy: {
+        name: "hanzydev",
+        id: 1093131781043126322n,
+    },
+    Elvyra: {
+        name: "Elvyra",
+        id: 708275751816003615n,
+    },
+    HappyEnderman: {
+        name: "Happy enderman",
+        id: 1083437693347827764n,
+    },
+    VISHNYA_NET_CHERESHNYA: {
+        name: "Vishnya",
+        id: 282541644484575233n,
+    },
+    Inbestigator: {
+        name: "Inbestigator",
+        id: 761777382041714690n,
+    },
+    newwares: {
+        name: "newwares",
+        id: 421405303951851520n,
+    },
+    Wolfie: {
+        name: "Wolfie",
+        id: 347096063569559553n,
+    },
+    nakoyasha: {
+        name: "nakoyasha",
+        id: 222069018507345921n,
+    },
+    Sqaaakoi: {
+        name: "Sqaaakoi",
+        id: 259558259491340288n,
+    },
+    Byron: {
+        name: "byeoon",
+        id: 1167275288036655133n,
+    },
+    puv: {
+        name: "puv",
+        id: 469441552251355137n,
+    },
+    arHSM: {
+        name: "arHSM",
+        id: 841509053422632990n,
+    },
+    iamme: {
+        name: "i am me",
+        id: 984392761929256980n,
+    },
+    MrDiamond: {
+        name: "mrdiamonddog",
+        id: 523338295644782592n,
+    },
+    Kaitlyn: {
+        name: "kaitlyn",
+        id: 306158896630988801n,
+    },
+    PolisanTheEasyNick: {
+        name: "Oleh Polisan",
+        id: 242305263313485825n,
+    },
+    Kodarru: {
+        name: "Kodarru",
+        id: 785227396218748949n,
+    },
+    Tolgchu: {
+        name: "✨Tolgchu✨",
+        id: 329671025312923648n,
+    },
+    Slightly: {
+        name: "Slightly",
+        id: 119536078452424704n,
+    },
+    DaBluLite: {
+        name: "DaBluLite",
+        id: 582170007505731594n,
+    },
+    SerStars: {
+        name: "SerStars",
+        id: 861631850681729045n,
+    },
+    GabiRP: {
+        name: "GabiRP",
+        id: 507955112027750401n,
+    },
+    nin0dev: {
+        name: "nin0dev",
+        id: 886685857560539176n,
+    },
+    ImBanana: {
+        name: "Im_Banana",
+        id: 635250116688871425n,
+    },
+    xocherry: {
+        name: "xocherry",
+        id: 221288171013406720n,
+    },
+    ScattrdBlade: {
+        name: "ScattrdBlade",
+        id: 678007540608532491n,
+    },
+    Board: {
+        name: "BoardTM",
+        id: 285475344817848320n,
+    },
+    UlyssesZhan: {
+        name: "UlyssesZhan",
+        id: 586808226058862623n,
+    },
+    nyx: {
+        name: "verticalsync",
+        id: 328165170536775680n,
+    },
+    JohnyTheCarrot: {
+        name: "JohnyTheCarrot",
+        id: 132819036282159104n,
+    },
+    goodbee: {
+        name: "goodbee",
+        id: 658968552606400512n,
+    },
+    Lexi: {
+        name: "Lexi",
+        id: 506101469787717658n,
+    },
+    Vishnya: {
+        name: "Vishnya",
+        id: 282541644484575233n,
+    },
+    nekohaxx: {
+        name: "nekohaxx",
+        id: 1176270221628153886n,
+    },
 } satisfies Record<string, Dev>);
 
 export const SuncordDevs = /* #__PURE__*/ Object.freeze({
     nyx: {
-        name: "dropped#0001",
+        name: "verticalsync",
         id: 328165170536775680n,
     },
     bhop: {
-        name: "femie",
+        name: "femeie",
         id: 442626774841556992n,
     },
     Drag: {
@@ -474,6 +600,26 @@ export const SuncordDevs = /* #__PURE__*/ Object.freeze({
     Woosh: {
         name: "w00shh.",
         id: 689165844835860522n,
+    },
+    Cortex: {
+        name: "Cortex",
+        id: 825069530376044594n,
+    },
+    thororen: {
+        name: "thororen",
+        id: 848339671629299742n
+    },
+    nexpid: {
+        name: "Nexpid",
+        id: 853550207039832084n
+    },
+    KrystalSkull: {
+        name: "krystalskullofficial",
+        id: 929208515883569182n
+    },
+    SerStars: {
+        name: "SerStars",
+        id: 861631850681729045n,
     },
 } satisfies Record<string, Dev>);
 

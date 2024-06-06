@@ -26,6 +26,11 @@
     flex-direction: row;
 }
 
+.vc-settings-discordinvite {
+    display: flex;
+    flex-direction: row;
+}
+
 .vc-settings-card {
     padding: 1em;
     margin-bottom: 1em;
@@ -64,4 +69,12 @@
 
     /* discord also sets cursor: default which prevents the cursor from showing as text */
     cursor: initial;
+}
+
+.vc-updater-modal {
+    padding: 1.5em !important;
+}
+
+.vc-updater-modal-close-button {
+    float: right;
 }

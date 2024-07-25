@@ -61,7 +61,6 @@ export interface PluginAuthor {
 export interface Plugin extends PluginDef {
     patches?: Patch[];
     started: boolean;
-    fluxEventsSubscribed: boolean;
     isDependency?: boolean;
 }
 
@@ -129,7 +128,7 @@ export interface PluginDef {
      * Allows you to subscribe to Flux events
      */
     flux?: {
-        [E in FluxEvents]?: (event: any) => void;
+        [E in FluxEvents]?: (event: any) => void | Promise<void>;
     };
     /**
      * Allows you to manipulate context menus

@@ -17,14 +17,14 @@
 */
 
 import { mergeDefaults } from "@utils/mergeDefaults";
-import { findByPropsLazy } from "@webpack";
+import { findByCodeLazy } from "@webpack";
 import { MessageActions, SnowflakeUtils } from "@webpack/common";
 import { Message } from "discord-types/general";
 import type { PartialDeep } from "type-fest";
 
 import { Argument } from "./types";
 
-const MessageCreator = findByPropsLazy("createBotMessage");
+const createBotMessage = findByCodeLazy('username:"Clyde"');
 
 export function generateId() {
     return `-${SnowflakeUtils.fromTimestamp(Date.now())}`;
@@ -37,31 +37,7 @@ export function generateId() {
  * @returns {Message}
  */
 export function sendBotMessage(channelId: string, message: PartialDeep<Message>): Message {
-    const botMessage = MessageCreator.createBotMessage({ channelId, content: "", embeds: [] });
-
-    MessageActions.receiveMessage(channelId, mergeDefaults(message, botMessage));
-
-    return message as Message;
-}
-
-/**
- * Send a message as any id
- * @param {string} channelId ID of channel to send message to
- * @param {Message} message Message to send
- * @param {string} id ID to set message author to
- * @param {string} username Username to set message author to
- * @param {string} avatar Avatar to set message author to
- * @param {string} discriminator Discriminator to set message author to
- * @param {boolean} isBot Whether author is a bot or not
- * @returns {Message}
- */
-export function sendCustomMessage(channelId: string, message: PartialDeep<Message>, id: string, username: string, avatar = "", discriminator = "", isBot = false): Message {
-    const botMessage = MessageCreator.createBotMessage({ channelId, content: "", embeds: [] });
-    botMessage.author.id = id;
-    botMessage.author.avatar = avatar;
-    botMessage.author.username = username;
-    botMessage.author.bot = isBot;
-    botMessage.author.discriminator = discriminator;
+    const botMessage = createBotMessage({ channelId, content: "", embeds: [] });
 
     MessageActions.receiveMessage(channelId, mergeDefaults(message, botMessage));
 

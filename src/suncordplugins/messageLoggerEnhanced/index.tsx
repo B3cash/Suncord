@@ -22,7 +22,7 @@ export const Native = getNative();
 
 import "./styles.css";
 
-import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
+import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings, Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
@@ -37,7 +37,7 @@ import { ImageCacheDir, LogsDir } from "./components/settings/FolderSelectInput"
 import { addMessage, loggedMessages, MessageLoggerStore, removeLog } from "./LoggedMessageManager";
 import * as LoggedMessageManager from "./LoggedMessageManager";
 import { LoadMessagePayload, LoggedAttachment, LoggedMessage, LoggedMessageJSON, MessageCreatePayload, MessageDeleteBulkPayload, MessageDeletePayload, MessageUpdatePayload } from "./types";
-import { addToXAndRemoveFromOpposite, cleanUpCachedMessage, cleanupUserObject, doesBlobUrlExist, getNative, isGhostPinged, ListType, mapEditHistory, reAddDeletedMessages, removeFromX } from "./utils";
+import { addToXAndRemoveFromOpposite, cleanUpCachedMessage, cleanupUserObject, doesBlobUrlExist, getNative, isGhostPinged, ListType, mapEditHistory, messageJsonToMessageClass, reAddDeletedMessages, removeFromX } from "./utils";
 import { DEFAULT_IMAGE_CACHE_DIR } from "./utils/constants";
 import { shouldIgnore } from "./utils/index";
 import { LimitedMap } from "./utils/LimitedMap";
@@ -53,6 +53,7 @@ export const cacheSentMessages = new LimitedMap<string, LoggedMessageJSON>();
 
 const cacheThing = findByPropsLazy("commit", "getOrCreate");
 
+let oldGetMessage: typeof MessageStore.getMessage;
 
 const handledMessageIds = new Set();
 async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: boolean; }) {
@@ -72,7 +73,7 @@ async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: bo
         handledMessageIds.add(payload.id);
 
         let message: LoggedMessage | LoggedMessageJSON | null =
-            MessageStore.getMessage(payload.channelId, payload.id);
+            oldGetMessage?.(payload.channelId, payload.id);
         if (message == null) {
             // most likely an edited message
             const cachedMessage = cacheSentMessages.get(`${payload.channelId},${payload.id}`);
@@ -141,8 +142,7 @@ async function messageUpdateHandler(payload: MessageUpdatePayload) {
         return;//  Flogger.log("this message has been ignored", payload);
     }
 
-    let message = MessageStore
-        .getMessage(payload.message.channel_id, payload.message.id) as LoggedMessage | LoggedMessageJSON | null;
+    let message = oldGetMessage?.(payload.message.channel_id, payload.message.id) as LoggedMessage | LoggedMessageJSON | null;
 
     if (message == null) {
         // MESSAGE_UPDATE gets dispatched when emebeds change too and content becomes null
@@ -422,6 +422,102 @@ export const settings = definePluginSettings({
 
 });
 
+const contextMenuPath: NavContextMenuPatchCallback = (children, props) => {
+    if (!props) return;
+
+    if (!children.some(child => child?.props?.id === "message-logger")) {
+        children.push(
+            <Menu.MenuSeparator />,
+            <Menu.MenuItem
+                id="message-logger"
+                label="Message Logger"
+            >
+
+                <Menu.MenuItem
+                    id="open-logs"
+                    label="Open Logs"
+                    action={() => openLogModal()}
+                />
+
+                {Object.keys(idFunctions).map(IdType => renderOpenLogs(IdType as idKeys, props))}
+
+                <Menu.MenuSeparator />
+
+                {Object.keys(idFunctions).map(IdType => (
+                    <React.Fragment key={IdType}>
+                        {renderListOption("blacklistedIds", IdType as idKeys, props)}
+                        {renderListOption("whitelistedIds", IdType as idKeys, props)}
+                    </React.Fragment>
+                ))}
+
+                {
+                    props.navId === "message"
+                    && (props.message?.deleted || props.message?.editHistory?.length > 0)
+                    && (
+                        <>
+                            <Menu.MenuSeparator />
+                            <Menu.MenuItem
+                                id="remove-message"
+                                label={props.message?.deleted ? "Remove Message (Permanent)" : "Remove Message History (Permanent)"}
+                                color="danger"
+                                action={() =>
+                                    removeLog(props.message.id)
+                                        .then(() => {
+                                            if (props.message.deleted) {
+                                                FluxDispatcher.dispatch({
+                                                    type: "MESSAGE_DELETE",
+                                                    channelId: props.message.channel_id,
+                                                    id: props.message.id,
+                                                    mlDeleted: true
+                                                });
+                                            } else {
+                                                props.message.editHistory = [];
+                                            }
+                                        }).catch(() => Toasts.show({
+                                            type: Toasts.Type.FAILURE,
+                                            message: "Failed to remove message",
+                                            id: Toasts.genId()
+                                        }))
+
+                                }
+                            />
+                        </>
+                    )
+                }
+
+                {
+                    settings.store.hideMessageFromMessageLoggers
+                    && props.navId === "message"
+                    && props.message?.author?.id === UserStore.getCurrentUser().id
+                    && props.message?.deleted === false
+                    && (
+                        <>
+                            <Menu.MenuSeparator />
+                            <Menu.MenuItem
+                                id="hide-from-message-loggers"
+                                label="Delete Message (Hide From Message Loggers)"
+                                color="danger"
+
+                                action={async () => {
+                                    await MessageActions.deleteMessage(props.message.channel_id, props.message.id);
+                                    MessageActions._sendMessage(props.message.channel_id, {
+                                        "content": settings.store.hideMessageFromMessageLoggersDeletedMessage,
+                                        "tts": false,
+                                        "invalidEmojis": [],
+                                        "validNonShortcutEmojis": []
+                                    }, { nonce: props.message.id });
+                                }}
+
+                            />
+                        </>
+                    )
+                }
+
+            </Menu.MenuItem>
+        );
+    }
+};
+
 export default definePlugin({
     name: "MessageLoggerEnhanced",
     authors: [Devs.Aria],
@@ -440,17 +536,16 @@ export default definePlugin({
         {
             find: "THREAD_STARTER_MESSAGE?null===",
             replacement: {
-                match: /(attachments: \i\(.{1,500})deleted:.{1,50},editHistory:.{1,30},/,
-                replace: "$1deleted: $self.getDeleted(...arguments),editHistory: $self.getEdited(...arguments),"
+                match: /interactionData:null!=.{0,50}.interaction_data/,
+                replace: "deleted:$self.getDeleted(...arguments), editHistory:$self.getEdited(...arguments)"
             }
         },
 
         {
             find: "toolbar:function",
-            predicate: () => settings.store.ShowLogsButton,
             replacement: {
-                match: /(function \i\(\i\){)(.{1,200}toolbar.{1,100}mobileToolbar)/,
-                replace: "$1$self.addIconToToolBar(arguments[0]);$2"
+                match: /function \i\(\i\){/,
+                replace: "$&$self.addIconToToolBar(arguments[0]);"
             }
         },
 
@@ -483,7 +578,7 @@ export default definePlugin({
         {
             find: "Using PollReferenceMessageContext without",
             replacement: {
-                match: /\i\.(?:default\.)?focusMessage\(/,
+                match: /(?:\i\.)?\i\.(?:default\.)?focusMessage\(/,
                 replace: "!(arguments[0]?.message?.deleted || arguments[0]?.message?.editHistory?.length > 0) && $&"
             }
         },
@@ -592,32 +687,36 @@ export default definePlugin({
         "MESSAGE_CREATE": messageCreateHandler
     },
 
+    contextMenus: {
+        "message": contextMenuPath,
+        "channel-context": contextMenuPath,
+        "user-context": contextMenuPath,
+        "guild-context": contextMenuPath,
+        "gdm-context": contextMenuPath,
+    },
+
     async start() {
-        // if (!settings.store.saveMessages)
-        //     clearLogs();
+        this.oldGetMessage = oldGetMessage = MessageStore.getMessage;
+        // we have to do this because the original message logger fetches the message from the store now
+        MessageStore.getMessage = (channelId: string, messageId: string) => {
+            const MLMessage = LoggedMessageManager.getMessage(channelId, messageId);
+            if (MLMessage?.message) return messageJsonToMessageClass(MLMessage);
+
+            return this.oldGetMessage(channelId, messageId);
+        };
 
         Native.init();
 
         const { imageCacheDir, logsDir } = await Native.getSettings();
         settings.store.imageCacheDir = imageCacheDir;
         settings.store.logsDir = logsDir;
-
-        addContextMenuPatch("message", contextMenuPath);
-        addContextMenuPatch("channel-context", contextMenuPath);
-        addContextMenuPatch("user-context", contextMenuPath);
-        addContextMenuPatch("guild-context", contextMenuPath);
-        addContextMenuPatch("gdm-context", contextMenuPath);
     },
 
     stop() {
         // if (!settings.store.saveMessages)
         //     clearLogs();
 
-        removeContextMenuPatch("message", contextMenuPath);
-        removeContextMenuPatch("channel-context", contextMenuPath);
-        removeContextMenuPatch("user-context", contextMenuPath);
-        removeContextMenuPatch("guild-context", contextMenuPath);
-        removeContextMenuPatch("gdm-context", contextMenuPath);
+        MessageStore.getMessage = this.oldGetMessage;
     }
 });
 
@@ -667,99 +766,3 @@ function renderOpenLogs(idType: idKeys, props: any) {
         />
     );
 }
-
-const contextMenuPath: NavContextMenuPatchCallback = (children, props) => {
-    if (!props) return;
-
-    if (!children.some(child => child?.props?.id === "message-logger")) {
-        children.push(
-            <Menu.MenuSeparator />,
-            <Menu.MenuItem
-                id="message-logger"
-                label="Message Logger"
-            >
-
-                <Menu.MenuItem
-                    id="open-logs"
-                    label="Open Logs"
-                    action={() => openLogModal()}
-                />
-
-                {Object.keys(idFunctions).map(IdType => renderOpenLogs(IdType as idKeys, props))}
-
-                <Menu.MenuSeparator />
-
-                {Object.keys(idFunctions).map(IdType => (
-                    <React.Fragment key={IdType}>
-                        {renderListOption("blacklistedIds", IdType as idKeys, props)}
-                        {renderListOption("whitelistedIds", IdType as idKeys, props)}
-                    </React.Fragment>
-                ))}
-
-                {
-                    props.navId === "message"
-                    && (props.message?.deleted || props.message?.editHistory?.length > 0)
-                    && (
-                        <>
-                            <Menu.MenuSeparator />
-                            <Menu.MenuItem
-                                id="remove-message"
-                                label={props.message?.deleted ? "Remove Message (Permanent)" : "Remove Message History (Permanent)"}
-                                color="danger"
-                                action={() =>
-                                    removeLog(props.message.id)
-                                        .then(() => {
-                                            if (props.message.deleted) {
-                                                FluxDispatcher.dispatch({
-                                                    type: "MESSAGE_DELETE",
-                                                    channelId: props.message.channel_id,
-                                                    id: props.message.id,
-                                                    mlDeleted: true
-                                                });
-                                            } else {
-                                                props.message.editHistory = [];
-                                            }
-                                        }).catch(() => Toasts.show({
-                                            type: Toasts.Type.FAILURE,
-                                            message: "Failed to remove message",
-                                            id: Toasts.genId()
-                                        }))
-
-                                }
-                            />
-                        </>
-                    )
-                }
-
-                {
-                    settings.store.hideMessageFromMessageLoggers
-                    && props.navId === "message"
-                    && props.message?.author?.id === UserStore.getCurrentUser().id
-                    && props.message?.deleted === false
-                    && (
-                        <>
-                            <Menu.MenuSeparator />
-                            <Menu.MenuItem
-                                id="hide-from-message-loggers"
-                                label="Delete Message (Hide From Message Loggers)"
-                                color="danger"
-
-                                action={async () => {
-                                    await MessageActions.deleteMessage(props.message.channel_id, props.message.id);
-                                    MessageActions._sendMessage(props.message.channel_id, {
-                                        "content": settings.store.hideMessageFromMessageLoggersDeletedMessage,
-                                        "tts": false,
-                                        "invalidEmojis": [],
-                                        "validNonShortcutEmojis": []
-                                    }, { nonce: props.message.id });
-                                }}
-
-                            />
-                        </>
-                    )
-                }
-
-            </Menu.MenuItem>
-        );
-    }
-};

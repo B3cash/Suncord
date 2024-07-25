@@ -39,7 +39,7 @@ interface PluginData {
     hasCommands: boolean;
     required: boolean;
     enabledByDefault: boolean;
-    target: "discordDesktop" | "vencordDesktop" | "web" | "dev";
+    target: "discordDesktop" | "vencordDesktop" | "desktop" | "web" | "dev";
     filePath: string;
 }
 
@@ -242,7 +242,7 @@ function isPluginFile({ name }: { name: string; }) {
     const plugins = [] as PluginData[];
     const readmes = {} as Record<string, string>;
 
-    await Promise.all(["src/plugins", "src/plugins/_core"].flatMap(dir =>
+    await Promise.all(["src/plugins", "src/plugins/_core", "src/suncordplugins"].flatMap(dir =>
         readdirSync(dir, { withFileTypes: true })
             .filter(isPluginFile)
             .map(async dirent => {

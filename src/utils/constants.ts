@@ -33,13 +33,13 @@ export interface Dev {
  * If you are fine with attribution but don't want the badge, add badge: false
  */
 export const Devs = /* #__PURE__*/ Object.freeze({
-    Ven: {
-        name: "Vendicated",
-        id: 343383572805058560n,
-    },
     None: {
         name: "None",
-        id: 0n,
+        id: 0n
+    },
+    Ven: {
+        name: "Vee",
+        id: 343383572805058560n
     },
     Arjix: {
         name: "ArjixWasTaken",
@@ -327,8 +327,8 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         id: 305288513941667851n,
     },
     ImLvna: {
-        name: "Luna <3",
-        id: 799319081723232267n,
+        name: "lillith <3",
+        id: 799319081723232267n
     },
     rad: {
         name: "rad",
@@ -582,6 +582,34 @@ export const Devs = /* #__PURE__*/ Object.freeze({
         name: "nekohaxx",
         id: 1176270221628153886n,
     },
+    Colorman: {
+        name: "colorman",
+        id: 298842558610800650n,
+    },
+    PWall: {
+        name: "PWall",
+        id: 0n,
+    },
+    hen: {
+        id: 279266228151779329n,
+        name: "Hen",
+    },
+    Antti: {
+        name: "Antti",
+        id: 312974985876471810n,
+    },
+    philhk: {
+        name: "philhk",
+        id: 305288513941667851n,
+    },
+    walrus: {
+        name: "walrus",
+        id: 305317288775778306n,
+    },
+    Fafa: {
+        name: "Fafa",
+        id: 428188716641812481n,
+    },
 } satisfies Record<string, Dev>);
 
 export const SuncordDevs = /* #__PURE__*/ Object.freeze({
@@ -607,15 +635,15 @@ export const SuncordDevs = /* #__PURE__*/ Object.freeze({
     },
     thororen: {
         name: "thororen",
-        id: 848339671629299742n
+        id: 848339671629299742n,
     },
     nexpid: {
         name: "Nexpid",
-        id: 853550207039832084n
+        id: 853550207039832084n,
     },
     KrystalSkull: {
         name: "krystalskullofficial",
-        id: 929208515883569182n
+        id: 929208515883569182n,
     },
     SerStars: {
         name: "SerStars",

@@ -120,6 +120,8 @@ export function openImageModal(url: string, props?: Partial<React.ComponentProps
                 placeholder={url}
                 src={url}
                 renderLinkComponent={props => <MaskedLink {...props} />}
+                // Don't render forward message button
+                renderForwardComponent={() => null}
                 shouldHideMediaOptions={false}
                 shouldAnimate
                 {...props}
@@ -183,5 +185,5 @@ export async function fetchUserProfile(id: string, options?: FetchUserProfileOpt
  * Get the unique username for a user. Returns user.username for pomelo people, user.tag otherwise
  */
 export function getUniqueUsername(user: User) {
-    return user.discriminator === "0" ? user.username : user.tag;
+    return user.username;
 }

@@ -12,18 +12,14 @@ import { Flex } from "@components/Flex";
 import { Devs } from "@utils/constants";
 import { ModalProps, openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
-import { findByProps } from "@webpack";
 import {
     Button,
     Clipboard,
     Forms,
-    Heading,
     i18n,
     SettingsRouter,
     Toasts
 } from "@webpack/common";
-import { CSSProperties } from "react";
-import { Plugins } from "Vencord";
 
 import AutoColorwaySelector from "./components/AutoColorwaySelector";
 import ColorPickerModal from "./components/ColorPicker";
@@ -89,7 +85,7 @@ export let ColorPicker: React.FunctionComponent<ColorPickerProps> = () => {
     });
 
     if (customColorways) {
-        if (!customColorways[0].colorways) {
+        if (!customColorways[0]?.colorways) {
             DataStore.set("customColorways", [{ name: "Custom", colorways: customColorways }]);
         }
     } else {
@@ -112,31 +108,27 @@ export let ColorPicker: React.FunctionComponent<ColorPickerProps> = () => {
 })();
 
 export const ColorwayCSS = {
-    get: () => document.getElementById("activeColorwayCSS")?.textContent || "",
+    get: () => document.getElementById("activeColorwayCSS")!.textContent || "",
     set: (e: string) => {
         if (!document.getElementById("activeColorwayCSS")) {
-            var activeColorwayCSS: HTMLStyleElement =
-                document.createElement("style");
-            activeColorwayCSS.id = "activeColorwayCSS";
-            activeColorwayCSS.textContent = e;
-            document.head.append(activeColorwayCSS);
+            document.head.append(Object.assign(document.createElement("style"), {
+                id: "activeColorwayCSS",
+                textContent: e
+            }));
         } else document.getElementById("activeColorwayCSS")!.textContent = e;
     },
     remove: () => document.getElementById("activeColorwayCSS")!.remove(),
 };
 
 export const versionData = {
-    pluginVersion: "5.7.0b1",
+    pluginVersion: "5.7.1",
     creatorVersion: "1.20",
 };
 
 export default definePlugin({
     name: "DiscordColorways",
     description: "A plugin that offers easy access to simple color schemes/themes for Discord, also known as Colorways",
-    authors: [{
-        name: "DaBluLite",
-        id: 582170007505731594n
-    }, Devs.ImLvna],
+    authors: [Devs.DaBluLite, Devs.ImLvna],
     dependencies: ["ServerListAPI", "MessageAccessoriesAPI"],
     pluginVersion: versionData.pluginVersion,
     creatorVersion: versionData.creatorVersion,
@@ -169,7 +161,7 @@ export default definePlugin({
         {
             find: "this.renderArtisanalHack()",
             replacement: {
-                match: /createPromise:\(\)=>([^:}]*?),webpackId:"\d+",name:(?!="CollectiblesShop")"[^"]+"/g,
+                match: /createPromise:\(\)=>([^:}]*?),webpackId:"?\d+"?,name:(?!="CollectiblesShop")"[^"]+"/g,
                 replace: "$&,_:$1",
                 predicate: () => true
             }
@@ -178,8 +170,8 @@ export default definePlugin({
         {
             find: "Messages.USER_SETTINGS_WITH_BUILD_OVERRIDE.format",
             replacement: {
-                match: /(?<=(\i)\(this,"handleOpenSettingsContextMenu",.{0,100}?openContextMenuLazy.{0,100}?(await Promise\.all[^};]*?\)\)).*?,)(?=\1\(this)/,
-                replace: "(async ()=>$2)(),"
+                match: /(\i)\(this,"handleOpenSettingsContextMenu",.{0,100}?null!=\i&&.{0,100}?(await Promise\.all[^};]*?\)\)).*?,(?=\1\(this)/,
+                replace: "$&(async ()=>$2)(),"
             },
             predicate: () => true
         },
@@ -190,27 +182,6 @@ export default definePlugin({
                 replace: "$self.ColorPicker=$1;$&",
             },
         },
-        {
-            find: "Messages.ACTIVITY_SETTINGS",
-            replacement: {
-                match: /\{section:(\i\.\i)\.HEADER,\s*label:(\i)\.\i\.Messages\.APP_SETTINGS/,
-                replace: "...$self.makeSettingsCategories($1),$&"
-            }
-        },
-        {
-            find: "Messages.ACTIVITY_SETTINGS",
-            replacement: {
-                match: /(?<=section:(.{0,50})\.DIVIDER\}\))([,;])(?=.{0,200}(\i)\.push.{0,100}label:(\i)\.header)/,
-                replace: (_, sectionTypes, commaOrSemi, elements, element) => `${commaOrSemi} $self.addSettings(${elements}, ${element}, ${sectionTypes}) ${commaOrSemi}`
-            }
-        },
-        {
-            find: "Messages.USER_SETTINGS_ACTIONS_MENU_LABEL",
-            replacement: {
-                match: /(?<=function\((\i),\i\)\{)(?=let \i=Object.values\(\i.UserSettingsSections\).*?(\i)\.default\.open\()/,
-                replace: "$2.default.open($1);return;"
-            }
-        }
     ],
 
     set ColorPicker(e) {
@@ -237,87 +208,49 @@ export default definePlugin({
 
     patchedSettings: new WeakSet(),
 
-    addSettings(elements: any[], element: { header?: string; settings: string[]; }, sectionTypes: Record<string, unknown>) {
-        if (this.patchedSettings.has(elements) || !this.isRightSpot(element)) return;
-
-        this.patchedSettings.add(elements);
-
-        elements.push(...this.makeSettingsCategories(sectionTypes));
-    },
-
-    makeSettingsCategories(SectionTypes: Record<string, unknown>) {
-        const { headerText, header } = findByProps("headerText", "header", "separator");
-        return [
-            {
-                section: SectionTypes.CUSTOM,
-                label: "Discord Colorways",
-                className: "vc-settings-header",
-                element: () => <div className={header} style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "6px 10px"
-                }}>
-                    <Heading
-                        variant="eyebrow"
-                        className={headerText}
-                        style={{
-                            "text-wrap": "wrap",
-                            color: "var(--channels-default)"
-                        } as CSSProperties}
-                    >
-                        Discord Colorways
-                    </Heading>
-                    <Heading
-                        variant="eyebrow"
-                        className={headerText}
-                        style={{
-                            marginLeft: "auto",
-                            color: "var(--channels-default)"
-                        }}
-                    >
-                        v{(Plugins.plugins.DiscordColorways as any).pluginVersion}
-                    </Heading>
-                </div>
-            },
-            {
-                section: "ColorwaysSelector",
-                label: "Colorways",
-                element: () => <Selector isSettings modalProps={{ onClose: () => new Promise(() => true), transitionState: 1 }} />,
-                className: "dc-colorway-selector"
-            },
-            {
-                section: "ColorwaysSettings",
-                label: "Settings",
-                element: SettingsPage,
-                className: "dc-colorway-settings"
-            },
-            {
-                section: "ColorwaysSourceManager",
-                label: "Sources",
-                element: SourceManager,
-                className: "dc-colorway-sources-manager"
-            },
-            {
-                section: "ColorwaysOnDemand",
-                label: "On-Demand",
-                element: OnDemandWaysPage,
-                className: "dc-colorway-ondemand"
-            },
-            {
-                section: "ColorwaysStore",
-                label: "Store",
-                element: Store,
-                className: "dc-colorway-store"
-            },
-            {
-                section: SectionTypes.DIVIDER
-            }
-        ].filter(Boolean);
-    },
-
     ColorwaysButton: () => <ColorwaysButton />,
 
+
     async start() {
+        const customSettingsSections = (
+            Vencord.Plugins.plugins.Settings as any as {
+                customSections: ((ID: Record<string, unknown>) => any)[];
+            }
+        ).customSections;
+
+        const ColorwaysSelector = () => ({
+            section: "ColorwaysSelector",
+            label: "Colorways Selector",
+            element: () => <Selector isSettings modalProps={{ onClose: () => new Promise(() => true), transitionState: 1 }} />,
+            className: "dc-colorway-selector"
+        });
+        const ColorwaysSettings = () => ({
+            section: "ColorwaysSettings",
+            label: "Colorways Settings",
+            element: SettingsPage,
+            className: "dc-colorway-settings"
+        });
+        const ColorwaysSourceManager = () => ({
+            section: "ColorwaysSourceManager",
+            label: "Colorways Sources",
+            element: SourceManager,
+            className: "dc-colorway-sources-manager"
+        });
+        const ColorwaysOnDemand = () => ({
+            section: "ColorwaysOnDemand",
+            label: "Colorways On-Demand",
+            element: OnDemandWaysPage,
+            className: "dc-colorway-ondemand"
+        });
+        const ColorwaysStore = () => ({
+            section: "ColorwaysStore",
+            label: "Colorways Store",
+            element: Store,
+            className: "dc-colorway-store"
+        });
+
+        customSettingsSections.push(ColorwaysSelector, ColorwaysSettings, ColorwaysSourceManager, ColorwaysOnDemand, ColorwaysStore);
+
         addServerListElement(ServerListRenderPosition.In, this.ColorwaysButton);
 
         enableStyle(style);
@@ -371,31 +304,35 @@ export default definePlugin({
                                     </Button>
                                     <Button
                                         onClick={() => {
-                                            if (!hexToString(colorID).includes(",")) {
+                                            if (!colorID.includes(",")) {
                                                 throw new Error("Invalid Colorway ID");
                                             } else {
-                                                DataStore.set("activeColorwayObject", {
-                                                    id: "Temporary Colorway", css: generateCss(
-                                                        colorToHex(hexToString(colorID).split(/,#/)[1]),
-                                                        colorToHex(hexToString(colorID).split(/,#/)[2]),
-                                                        colorToHex(hexToString(colorID).split(/,#/)[3]),
-                                                        colorToHex(hexToString(colorID).split(/,#/)[0]),
-                                                        true,
-                                                        true,
-                                                        undefined,
-                                                        "Temporary Colorway"
-                                                    ), sourceType: "temporary", source: null
+                                                colorID.split("|").forEach((prop: string) => {
+                                                    if (prop.includes(",#")) {
+                                                        DataStore.set("activeColorwayObject", {
+                                                            id: "Temporary Colorway", css: generateCss(
+                                                                colorToHex(prop.split(/,#/)[1]),
+                                                                colorToHex(prop.split(/,#/)[2]),
+                                                                colorToHex(prop.split(/,#/)[3]),
+                                                                colorToHex(prop.split(/,#/)[0]),
+                                                                true,
+                                                                true,
+                                                                32,
+                                                                "Temporary Colorway"
+                                                            ), sourceType: "temporary", source: null
+                                                        });
+                                                        ColorwayCSS.set(generateCss(
+                                                            colorToHex(prop.split(/,#/)[1]),
+                                                            colorToHex(prop.split(/,#/)[2]),
+                                                            colorToHex(prop.split(/,#/)[3]),
+                                                            colorToHex(prop.split(/,#/)[0]),
+                                                            true,
+                                                            true,
+                                                            32,
+                                                            "Temporary Colorway"
+                                                        ));
+                                                    }
                                                 });
-                                                ColorwayCSS.set(generateCss(
-                                                    colorToHex(hexToString(colorID).split(/,#/)[1]),
-                                                    colorToHex(hexToString(colorID).split(/,#/)[2]),
-                                                    colorToHex(hexToString(colorID).split(/,#/)[3]),
-                                                    colorToHex(hexToString(colorID).split(/,#/)[0]),
-                                                    true,
-                                                    true,
-                                                    undefined,
-                                                    "Temporary Colorway"
-                                                ));
                                             }
                                         }}
                                         size={Button.Sizes.SMALL}
@@ -419,5 +356,16 @@ export default definePlugin({
         disableStyle(style);
         ColorwayCSS.remove();
         removeAccessory("colorways-btn");
+        const customSettingsSections = (
+            Vencord.Plugins.plugins.Settings as any as {
+                customSections: ((ID: Record<string, unknown>) => any)[];
+            }
+        ).customSections;
+
+        const i = customSettingsSections.findIndex(
+            section => section({}).id === ("ColorwaysSelector" || "ColorwaysSettings" || "ColorwaysSourceManager" || "ColorwaysOnDemand" || "ColorwaysStore")
+        );
+
+        if (i !== -1) customSettingsSections.splice(i, 1);
     },
 });

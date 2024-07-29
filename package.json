@@ -35,7 +35,7 @@
         "testTsc": "tsc --noEmit"
     },
     "dependencies": {
-        "@sapphi-red/web-noise-suppressor": "0.3.3",
+        "@sapphi-red/web-noise-suppressor": "0.3.5",
         "@vap/core": "0.0.12",
         "@vap/shiki": "0.10.5",
         "eslint-plugin-simple-header": "^1.0.2",
